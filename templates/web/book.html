@@ -1,0 +1,105 @@
+{% extends 'web/nav.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Load Swiper CSS -->
+<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="pt-10">
+    <!-- If a specific book is selected -->
+    {% if book %}
+    <div class="max-w-5xl mx-auto p-4 bg-white shadow-lg rounded-lg overflow-hidden mb-6">
+        <div class="flex flex-col sm:flex-row">
+            <!-- Book cover image (fixed size) -->
+            <div class="w-full sm:w-1/3 mb-4 sm:mb-0">
+                {% for image in book.images.all %}
+                    {% if image.cover %}
+                    <img src="{{ image.image.url }}" alt="{{ book.name }}" class="w-full h-96 object-cover rounded-md mb-4">
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- Book details -->
+            <div class="w-full sm:w-2/3 flex flex-col justify-between sm:pl-6">
+                <div>
+                    <h3 class="text-3xl sm:text-4xl font-semibold text-gray-800 mb-4">{{ book.name }}</h3>
+                    <p class="text-gray-600 mb-6">{{ book.description }}</p>
+                    <a href="#" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-200 ease-in-out">
+                        Download
+                    </a>
+                    <a href="#"
+           class="inline-block bg-blue-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-200 ease-in-out"
+           onclick="sendToPrint({{ book.id }})">
+            Printer
+        </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other images -->
+        <div class="flex flex-wrap pt-6">
+            {% for image in book.images.all %}
+                {% if not image.cover %}
+                    <div class="w-1/3 sm:w-1/4 md:w-1/5 lg:w-1/6 p-2">
+                        <img src="{{ image.image.url }}" alt="{{ book.name }}" class="w-full h-32 object-cover rounded-md mb-4">
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Slider for books of the same type -->
+    {% if books_of_same_type %}
+    <h2 class="text-center text-2xl font-bold mb-6">Books of the Same Type</h2>
+    <div class="swiper-container overflow-hidden">
+        <div class="swiper-wrapper">
+            {% for book in books_of_same_type %}
+            <div class="swiper-slide p-4">
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden max-w-sm mx-auto">
+                    {% for image in book.images.all %}
+                        {% if forloop.first %}
+                            <img src="{{ image.image.url }}" alt="{{ book.name }}" class="w-full h-48 object-cover rounded-md">
+                        {% endif %}
+                    {% endfor %}
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 text-center">{{ book.name }}</h3>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <p class="text-center text-gray-500 mt-4">No other books of the same type available.</p>
+    {% endif %}
+</div>
+
+<!-- Load Swiper JS -->
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+<script>
+
+       function sendToPrint(bookId) {
+        const url = `/commande?book_id=${bookId}`;
+        window.location.href = url;
+    }
+
+    const swiper = new Swiper('.swiper-container', {
+        slidesPerView: 4,
+        spaceBetween: 20,
+        loop: true,
+        autoplay: {
+            delay: 3000,
+            disableOnInteraction: false,
+        },
+        breakpoints: {
+            1024: { slidesPerView: 4 },
+            768: { slidesPerView: 3 },
+            640: { slidesPerView: 2 },
+        },
+    });
+</script>
+
+{% endblock %}

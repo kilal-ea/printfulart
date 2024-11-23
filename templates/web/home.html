@@ -1,0 +1,204 @@
+{% extends 'web/nav.html' %}
+
+{% load static %}
+
+{% block content %}
+    <!-- Load Swiper CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <div class="pt-2">
+        <div class="rounded-t-3xl">
+            <!-- Title Section -->
+            <div class="text-center text-white mb-4"
+                 style="background-image: url({% static 'images/background.png' %}); background-size: cover; background-position: center; height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <h1 class="text-3xl font-bold">Download Books</h1>
+                <p class="text-lg">Type a title or keyword to find and download books instantly.</p>
+            </div>
+
+            <!-- Search Section -->
+            <div class="flex justify-center w-full">
+                <div class="mb-4 w-2/4">
+                    <!-- Search Input -->
+                    <div class="flex -mt-10 mb-6">
+                        <div class="flex items-center w-full border border-gray-300 rounded-lg overflow-hidden shadow-sm bg-white">
+                            <input
+                                type="text"
+                                id="vinSearch"
+                                name="vin"
+                                class="px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full focus:border-blue-500 rounded-l-lg"
+                                oninput="filterDropdown()"
+                                autocomplete="off"
+                                placeholder="Type to search by book name or type..."
+                            />
+                            <button type="button" class="bg-blue-500 text-white p-3 rounded-r-lg hover:bg-blue-600 transition-colors">
+                                Rechercher
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown results -->
+                    <div id="dropdown" class="absolute w-2/4 bg-white border border-gray-300 rounded-lg shadow-lg -mt-6 hidden max-h-40 overflow-y-auto z-50">
+                        {% for book in books %}
+                            <div class="p-2 hover:bg-gray-100 cursor-pointer" data-name="{{ book.name }}" onclick="selectOption('{{ book.name }}', '{{ book.id }}', null)">
+                                {{ book.name }}
+                            </div>
+                        {% endfor %}
+                        {% for book_type in book_types %}
+                            <div class="p-2 hover:bg-gray-100 cursor-pointer" data-name="{{ book_type.name }}" data-type="{{ book_type.name }}" onclick="selectOption('{{ book_type.name }}', null, '{{ book_type.id }}')">
+                                {{ book_type.name }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Swiper container for Book Display -->
+<div class="swiper-container overflow-hidden">
+    <div class="swiper-wrapper">
+        {% for book in books %}
+            <div class="swiper-slide w-full sm:w-72 md:w-64 lg:w-56 h-auto p-4 bg-blue-200 m-2 flex-shrink-0 rounded-lg shadow-lg">
+                <a href="{% url 'search_books' %}?book_id={{ book.id }}" class="block">
+                    {% for image in book.images.all %}
+                    {% if image.cover %}
+                    <img src="{{ image.image.url }}" alt="{{ book.name }}" class="w-full h-72 object-cover rounded-md mb-3">
+                    {% endif %}
+
+                    {% endfor %}
+                    <h3 class="text-xl font-semibold text-center">{{ book.name }}</h3>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>    </div>
+
+    <!-- Service Section -->
+    <div class="m-4 p-6">
+        <div class="flex justify-center mb-4">
+            <hr class="w-1/3 border-t-2 border-gray-300"/>
+        </div>
+        <div class="text-center">
+            <h2 class="text-4xl font-semibold text-gray-800">Services</h2>
+        </div>
+        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow m-4">
+            <img src="https://via.placeholder.com/300x200" alt="Service Image" class="w-full h-48 object-cover rounded-t-lg">
+            <div class="p-4">
+                <h2 class="text-xl font-semibold text-gray-800">Print on demand</h2>
+                <p class="text-gray-600 mt-2">We offer you a book printing service with the possibility of delivery to your door with excellent service quality, whether for children or adults, or you need to print your own book, we are here to meet your needs with all professionalism.</p>
+            </div>
+        </div>
+        <div class="flex">
+            <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow w-1/3 m-4">
+                <img src="https://via.placeholder.com/300x200" alt="Service Image" class="w-full h-48 object-cover rounded-t-lg">
+                <div class="p-4">
+                    <h2 class="text-xl font-semibold text-gray-800">Another Service</h2>
+                    <p class="text-gray-600 mt-2">Provide a concise summary of this service offering.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow w-2/3 m-4">
+                <img src="https://via.placeholder.com/300x200" alt="Service Image" class="w-full h-48 object-cover rounded-t-lg">
+                <div class="p-4">
+                    <h2 class="text-xl font-semibold text-gray-800">Free download</h2>
+                    <p class="text-gray-600 mt-2">We offer you a unique opportunity to download books for free through our platform, to help you access knowledge easily and without any cost. Enjoy a rich library that includes a wide range of books in various fields.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Us Section -->
+    <div class="flex justify-center">
+        <div class="text-center bg-gray-100 p-6 w-4/5 rounded-2xl">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">About Us</h2>
+            <p class="text-gray-600 text-lg leading-relaxed mb-6">
+                Hello, We Are PrintfulArt. We offer you a unique opportunity to download books for free through our platform, to help you access knowledge easily and without any cost. Enjoy a rich library that includes a wide range of books in various fields.
+                Additionally, we provide a professional book printing service with the option of delivery to your doorstep. Whether for children or adults, or if you need to print your own book, we are here to meet your needs with the highest level of professionalism.
+            </p>
+        </div>
+    </div>
+
+    <!-- Load Swiper JS -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+    <script>
+        const swiper = new Swiper('.swiper-container', {
+            slidesPerView: 6,
+            spaceBetween: 10,
+            loop: true,
+            autoplay: {
+                delay: 3000,
+                disableOnInteraction: false,
+            },
+            breakpoints: {
+                1024: { slidesPerView: 6 },
+                768: { slidesPerView: 3 },
+                640: { slidesPerView: 1 },
+            },
+        });
+
+        let selectedBookId = null;
+        let selectedTypeId = null;
+
+        function filterDropdown() {
+            const input = document.getElementById('vinSearch');
+            const dropdown = document.getElementById('dropdown');
+            const filter = input.value.toLowerCase().trim();
+            const options = dropdown.querySelectorAll('div');
+
+            if (filter === "") {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            let visible = false;
+            const isTypeSearch = filter.includes('type:');
+
+            if (isTypeSearch) {
+                const typeFilter = filter.replace('type:', '').trim();
+
+                options.forEach(option => {
+                    const type = option.getAttribute('data-type');
+                    if (type && type.includes(typeFilter)) {
+                        option.style.display = 'block';
+                        visible = true;
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+            } else {
+                options.forEach(option => {
+                    const name = option.getAttribute('data-name');
+                    if (name && name.toLowerCase().includes(filter)) {
+                        option.style.display = 'block';
+                        visible = true;
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+            }
+
+            dropdown.style.display = visible ? 'block' : 'none';
+        }
+
+        function selectOption(name, bookId, typeId) {
+            const input = document.getElementById('vinSearch');
+            input.value = name;
+
+            selectedBookId = bookId || null;
+            selectedTypeId = typeId || null;
+
+            document.getElementById('dropdown').style.display = 'none';
+
+            // Redirect to the search_books path with the selected IDs
+            const url = new URL(window.location.origin + '{% url "search_books" %}');
+            if (selectedBookId) {
+                url.searchParams.append('book_id', selectedBookId);
+            }
+            if (selectedTypeId) {
+                url.searchParams.append('type_id', selectedTypeId);
+            }
+            window.location.href = url;
+        }
+    </script>
+{% endblock %}

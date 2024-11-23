@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printfulart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="bg-white   fixed w-full z-10">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <!-- Logo -->
+        <div class="text-2xl font-bold text-blue-600">MySite</div>
+
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex space-x-8 items-center">
+            <a href="/" class="text-gray-600 hover:text-blue-600 transition duration-200">Home</a>
+            <a href="#" class="text-gray-600 hover:text-blue-600 transition duration-200">About</a>
+            <a href="#" class="text-gray-600 hover:text-blue-600 transition duration-200">Services</a>
+            <a href="#" class="text-gray-600 hover:text-blue-600 transition duration-200">Contact</a>
+            <button class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition duration-200">Get Started</button>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden">
+            <button id="menu-toggle" class="text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white px-6 py-4 space-y-4">
+        <a href="/" class="block text-gray-600 hover:text-blue-600 transition duration-200">Home</a>
+        <a href="#" class="block text-gray-600 hover:text-blue-600 transition duration-200">About</a>
+        <a href="#" class="block text-gray-600 hover:text-blue-600 transition duration-200">Services</a>
+        <a href="#" class="block text-gray-600 hover:text-blue-600 transition duration-200">Contact</a>
+        <button class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">Get Started</button>
+    </div>
+</nav>
+
+<div class="pt-16">
+    {% block content %}
+
+    {% endblock content %}
+</div>
+
+<footer class="bg-gray-800 text-white py-8 mt-10">
+    <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- About Section -->
+        <div>
+            <h2 class="text-lg font-bold mb-4">About Us</h2>
+            <p class="text-gray-400">
+                We offer a variety of books to download and a professional print-on-demand service. Join us in exploring the world of knowledge with top-quality content and services.
+            </p>
+        </div>
+
+        <!-- Navigation Links -->
+        <div>
+            <h2 class="text-lg font-bold mb-4">Quick Links</h2>
+            <ul class="space-y-2">
+                <li><a href="#" class="text-gray-400 hover:text-white">Home</a></li>
+                <li><a href="#" class="text-gray-400 hover:text-white">Download Books</a></li>
+                <li><a href="#" class="text-gray-400 hover:text-white">Print on Demand</a></li>
+                <li><a href="#" class="text-gray-400 hover:text-white">Contact Us</a></li>
+            </ul>
+        </div>
+
+        <!-- Contact Section -->
+        <div>
+            <h2 class="text-lg font-bold mb-4">Contact</h2>
+            <ul class="space-y-2">
+                <li class="text-gray-400">Email: support@printfulart.com</li>
+                <li class="text-gray-400">Phone: +123 456 789</li>
+                <li class="text-gray-400">Address: 123 Library Lane, Knowledge City</li>
+            </ul>
+
+            <!-- Social Media Icons -->
+            <div class="flex mt-4 space-x-4">
+                <a href="#" class="text-gray-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .73.593 1.324 1.325 1.324h11.497v-9.297h-3.132v-3.622h3.132v-2.669c0-3.1 1.841-4.885 4.626-4.885 1.343 0 2.624.1 2.98.146v3.476h-1.886c-1.48 0-1.776.701-1.776 1.742v2.281h3.558l-.459 3.622h-3.099v9.297h6.126c.732 0 1.325-.593 1.325-1.324v-21.351c0-.732-.593-1.325-1.325-1.325z"/>
+                    </svg>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2c-5.523 0-10 4.477-10 10s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10zm-1 15v-2h2v2h-2zm2-3h-2v-4h-2v4h-2v-5h6v5z"/>
+                    </svg>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2c-5.523 0-10 4.477-10 10s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10zm1 15v-2h-2v2h2zm0-3h-2v-4h-2v4h-2v-5h6v5z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-8 py-4 bg-gray-700">
+        <p class="text-gray-400">© 2024 PrintfulArt. All rights reserved.</p>
+    </div>
+</footer>
+</body>
+</html>
+
+
+<script>
+    // JavaScript for toggling mobile menu
+    const menuToggle = document.getElementById("menu-toggle");
+    const mobileMenu = document.getElementById("mobile-menu");
+
+    menuToggle.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+    });
+</script>
+
+</body>
+</html>

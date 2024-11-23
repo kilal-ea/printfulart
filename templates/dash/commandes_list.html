@@ -1,0 +1,219 @@
+{% extends 'dash/navdash.html' %}
+
+{% block content %}
+<!-- commandes_list.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commandes List</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script>
+        let currentPage = 1;
+        const rowsPerPage = 5; // Number of rows per page
+        let filteredRows = []; // Store filtered rows
+        let allRows = []; // Store all rows to reset after filtering
+
+        function filterByDate() {
+            // Get the selected date range
+            var startDate = document.getElementById("start-date").value;
+            var endDate = document.getElementById("end-date").value;
+
+            // Get all the rows in the table
+            var rows = document.querySelectorAll("tbody tr");
+            filteredRows = [];
+
+            // Loop through each row and check the created_at date
+            rows.forEach(function(row) {
+                var createdAt = row.getAttribute("data-created-at");
+                var createdAtObj = new Date(createdAt);
+
+                // Normalize the created_at date (set the time to 00:00:00 for comparison)
+                createdAtObj.setHours(0, 0, 0, 0);
+
+                var showRow = true;
+
+                if (startDate) {
+                    var startDateObj = new Date(startDate);
+                    startDateObj.setHours(0, 0, 0, 0); // Normalize the start date
+                    if (startDateObj > createdAtObj) {
+                        showRow = false; // Row is before the start date
+                    }
+                }
+
+                if (endDate) {
+                    var endDateObj = new Date(endDate);
+                    endDateObj.setHours(23, 59, 59, 999); // Normalize the end date
+                    if (endDateObj < createdAtObj) {
+                        showRow = false; // Row is after the end date
+                    }
+                }
+
+                if (showRow) {
+                    filteredRows.push(row);
+                }
+            });
+
+            // Reset pagination
+            currentPage = 1;
+            displayPage(currentPage);
+        }
+
+        function filterByValider() {
+            const validerFilter = document.getElementById("valider-filter").value;
+            filteredRows = allRows.filter(function(row) {
+                const isValidated = row.getAttribute("data-valider") === "True"; // Use the attribute you set for validation status
+                if (validerFilter === "") return true; // If no filter, show all
+                return validerFilter === "true" ? isValidated : !isValidated; // Show only validated or not validated based on filter
+            });
+
+            // Reset the background color based on validation
+            filteredRows.forEach(function(row) {
+                if (row.getAttribute("data-valider") === "True") {
+                    row.classList.add("bg-green-100"); // Apply green background if validated
+                } else {
+                    row.classList.remove("bg-green-100"); // Remove the green background if not validated
+                }
+            });
+
+            currentPage = 1; // Reset to first page after filter
+            displayPage(currentPage);
+        }
+
+        function displayPage(page) {
+            const startIndex = (page - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+
+            // Hide all rows first
+            const rows = document.querySelectorAll("tbody tr");
+            rows.forEach(function(row) {
+                row.style.display = "none";
+            });
+
+            // Show the rows for the current page
+            filteredRows.slice(startIndex, endIndex).forEach(function(row) {
+                row.style.display = "";
+            });
+
+            // Update pagination buttons
+            updatePaginationButtons();
+        }
+
+        function updatePaginationButtons() {
+            const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+            document.getElementById("total-pages").textContent = totalPages;
+
+            // Enable or disable pagination buttons based on the current page
+            document.getElementById("prev-btn").disabled = currentPage === 1;
+            document.getElementById("next-btn").disabled = currentPage === totalPages;
+        }
+
+        function nextPage() {
+            if (currentPage < Math.ceil(filteredRows.length / rowsPerPage)) {
+                currentPage++;
+                displayPage(currentPage);
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                displayPage(currentPage);
+            }
+        }
+
+        function firstPage() {
+            currentPage = 1;
+            displayPage(currentPage);
+        }
+
+        function lastPage() {
+            currentPage = Math.ceil(filteredRows.length / rowsPerPage);
+            displayPage(currentPage);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Store all rows initially to allow resetting the filter
+            allRows = Array.from(document.querySelectorAll("tbody tr"));
+            filteredRows = allRows; // Initially, no filter is applied
+            displayPage(currentPage);
+
+            // Apply background color for validated rows
+            allRows.forEach(function(row) {
+                if (row.getAttribute("data-valider") === "True") {
+                    row.classList.add("bg-green-100"); // Apply green background if validated
+                }
+            });
+        });
+    </script>
+</head>
+<body class="bg-green-100"> <!-- Set background to green -->
+
+    <div class="container mx-auto mt-10 px-4">
+        <h1 class="text-2xl font-semibold mb-6 text-gray-800">Commandes</h1>
+
+        <!-- Date Filter Section -->
+        <div class="mb-6 flex justify-start space-x-4">
+            <div>
+                <label for="start-date" class="mr-2 text-sm text-gray-600">Start Date:</label>
+                <input type="date" id="start-date" class="border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" onchange="filterByDate()">
+            </div>
+            <div>
+                <label for="end-date" class="mr-2 text-sm text-gray-600">End Date:</label>
+                <input type="date" id="end-date" class="border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" onchange="filterByDate()">
+            </div>
+            <!-- Filter by Valider Status -->
+            <div>
+                <label for="valider-filter" class="mr-2 text-sm text-gray-600">Filter by Validation:</label>
+                <select id="valider-filter" class="border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" onchange="filterByValider()">
+                    <option value="">All</option>
+                    <option value="true">Validated</option>
+                    <option value="false">Not Validated</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commande</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for commande in commandes %}
+                    <tr data-created-at="{{ commande.created_at|date:'Y-m-d' }}" data-valider="{{ commande.valider }}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ commande.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ commande.customer_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ commande.phone }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ commande.quantity }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{% url 'commande_detail' commande.id %}" class="text-indigo-600 hover:text-indigo-900">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 flex justify-between items-center">
+            <div class="text-sm text-gray-600">
+                Page <span id="current-page">{{ currentPage }}</span> of <span id="total-pages"></span>
+            </div>
+            <div>
+                <button id="prev-btn" onclick="prevPage()" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-700 focus:outline-none" title="Previous Page">Previous</button>
+                <button id="first-btn" onclick="firstPage()" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-700 focus:outline-none" title="First Page">First</button>
+                <button id="next-btn" onclick="nextPage()" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-700 focus:outline-none" title="Next Page">Next</button>
+                <button id="last-btn" onclick="lastPage()" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-700 focus:outline-none" title="Last Page">Last</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+{% endblock %}

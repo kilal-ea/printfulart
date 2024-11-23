@@ -1,0 +1,185 @@
+{% extends 'web/nav.html' %}
+{% load static %}
+
+{% block content %}
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="pt-10">
+    <!-- Filter Form -->
+    <div class="flex justify-center w-full mt-10 mb-20">
+        <div class="mb-4 w-2/4">
+            <!-- Search Input -->
+            <div class="flex -mt-10 mb-6">
+                <div class="flex items-center w-full border border-gray-300 rounded-lg overflow-hidden shadow-sm bg-white">
+                    <input
+                        type="text"
+                        id="vinSearch"
+                        name="vin"
+                        class="px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full focus:border-blue-500 rounded-l-lg"
+                        oninput="filterDropdown()"
+                        autocomplete="off"
+                        placeholder="Type to search by book name or type..."
+                    />
+                    <button type="button" class="bg-blue-500 text-white p-3 rounded-r-lg hover:bg-blue-600 transition-colors">
+                        Rechercher
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dropdown results -->
+            <div id="dropdown" class="absolute w-2/4 bg-white border border-gray-300 rounded-lg shadow-lg -mt-6 hidden max-h-40 overflow-y-auto z-50">
+                {% for book in books %}
+                    <div class="p-2 hover:bg-gray-100 cursor-pointer" data-name="{{ book.name }}" onclick="selectOption('{{ book.name }}', '{{ book.id }}', null)">
+                        {{ book.name }}
+                    </div>
+                {% endfor %}
+                {% for book_type in book_types %}
+                    <div class="p-2 hover:bg-gray-100 cursor-pointer" data-name="{{ book_type.name }}" data-type="{{ book_type.name }}" onclick="selectOption('{{ book_type.name }}', null, '{{ book_type.id }}')">
+                        {{ book_type.name }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Book Gallery -->
+    <div id="book-gallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Books will be loaded here dynamically -->
+    </div>
+
+    <div id="loading" class="text-center py-4 text-gray-600 hidden">Loading more books...</div>
+</div>
+
+<script>
+    let currentBookIndex = 0;
+    const booksPerLoad = 16;  // Changed to 16 books per load
+    let books = [
+        {% for book in books_of_same_type %}
+            {
+                "id": {{ book.id }},
+                "name": "{{ book.name }}",
+                "images": [
+                    {% for image in book.images.all %}
+                        {
+                            "imageUrl": "{{ image.image.url }}",
+                            "cover": {{ image.cover|yesno:"true,false" }}
+                        },
+                    {% endfor %}
+                ]
+            },
+        {% endfor %}
+    ];
+
+    // Function to load books dynamically
+    function loadBooks() {
+        const gallery = document.getElementById('book-gallery');
+        const loading = document.getElementById('loading');
+        loading.classList.remove('hidden');
+
+        // Load the next set of books
+        const nextBooks = books.slice(currentBookIndex, currentBookIndex + booksPerLoad);
+        nextBooks.forEach(book => {
+            const bookDiv = document.createElement('div');
+            bookDiv.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow-lg');
+
+            const bookLink = document.createElement('a');
+            bookLink.href = "{% url 'search_books' %}?book_id=" + book.id;
+            bookLink.classList.add('block');
+
+            const imgElement = book.images.find(img => img.cover) ? `<img src="${book.images.find(img => img.cover).imageUrl}" alt="${book.name}" class="w-full h-72 object-cover rounded-md mb-3">` : '';
+            bookLink.innerHTML = imgElement + `<h3 class="text-xl font-semibold text-center">${book.name}</h3>`;
+
+            bookDiv.appendChild(bookLink);
+            gallery.appendChild(bookDiv);
+        });
+
+        currentBookIndex += booksPerLoad;
+
+        if (currentBookIndex >= books.length) {
+            loading.innerText = "No more books available.";
+        }
+        loading.classList.add('hidden');
+    }
+
+    // Infinite scroll event
+    function checkScroll() {
+        const scrollableHeight = document.documentElement.scrollHeight;
+        const scrollPosition = window.innerHeight + window.scrollY;
+
+        if (scrollPosition >= scrollableHeight - 50) {
+            loadBooks();
+        }
+    }
+
+    // Initial load of books (first 16)
+    document.addEventListener('DOMContentLoaded', () => {
+        loadBooks();  // Load the first set of books
+        window.addEventListener('scroll', checkScroll);  // Listen for scroll events
+    });
+
+    // Filter Dropdown Function
+    function filterDropdown() {
+        const input = document.getElementById('vinSearch');
+        const dropdown = document.getElementById('dropdown');
+        const filter = input.value.toLowerCase().trim();
+        const options = dropdown.querySelectorAll('div');
+
+        if (filter === "") {
+            dropdown.style.display = 'none';
+            return;
+        }
+
+        let visible = false;
+        const isTypeSearch = filter.includes('type:');
+
+        if (isTypeSearch) {
+            const typeFilter = filter.replace('type:', '').trim();
+
+            options.forEach(option => {
+                const type = option.getAttribute('data-type');
+                if (type && type.includes(typeFilter)) {
+                    option.style.display = 'block';
+                    visible = true;
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        } else {
+            options.forEach(option => {
+                const name = option.getAttribute('data-name');
+                if (name && name.toLowerCase().includes(filter)) {
+                    option.style.display = 'block';
+                    visible = true;
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        }
+
+        dropdown.style.display = visible ? 'block' : 'none';
+    }
+
+    // Select option handler
+    function selectOption(name, bookId, typeId) {
+        const input = document.getElementById('vinSearch');
+        input.value = name;
+
+        selectedBookId = bookId || null;
+        selectedTypeId = typeId || null;
+
+        document.getElementById('dropdown').style.display = 'none';
+
+        // Redirect to the search_books path with the selected IDs
+        const url = new URL(window.location.origin + '{% url "search_books" %}');
+        if (selectedBookId) {
+            url.searchParams.append('book_id', selectedBookId);
+        }
+        if (selectedTypeId) {
+            url.searchParams.append('type_id', selectedTypeId);
+        }
+        window.location.href = url;
+    }
+</script>
+
+{% endblock %}
